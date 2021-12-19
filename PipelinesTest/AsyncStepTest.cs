@@ -1,0 +1,39 @@
+﻿using System;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Pipelines;
+using Xunit;
+
+namespace PipelinesTest
+{
+    public class AsyncStepTest
+    {
+        [Fact]
+        public async Task WorksForSimpleTasks()
+        {
+            var pipeline = new[]
+            {
+                AStep.ThatExecutes<string, string>(str => Task.FromResult(str.ToUpperInvariant())).Build(),
+            };
+
+            (await pipeline.ExecutePipeline<string, string>("test")).Should().Be("TEST");
+        }
+
+        [Fact]
+        public async Task ChecksAllPreconditions()
+        {
+            var pipeline = new[]
+            {
+                AStep.ThatExecutes<string, string>(Task.FromResult)
+                    .WithPrecondition("NotNull", str => str != null)
+                    .WithPrecondition("NotEmpty", str => !string.IsNullOrEmpty(str))
+                    .Build()
+            };
+
+            await pipeline.Invoking(p => p.ExecutePipeline<string, string>(null))
+                .Should()
+                .ThrowAsync<ArgumentException>()
+                .WithMessage("*Preconditions*not*NotNull*NotEmpty*");
+        }
+    }
+}
