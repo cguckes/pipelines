@@ -2,11 +2,6 @@
 
 namespace Pipelines
 {
-    public interface IStep
-    {
-        public Task<object> Execute(object input);
-    }
-
     public abstract class Step<TIn, TOut> : IStep
     {
         async Task<object> IStep.Execute(object input)
