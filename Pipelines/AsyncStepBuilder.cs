@@ -12,7 +12,7 @@ namespace Pipelines
         private readonly Func<TIn, Task<TOut>> _function;
         private readonly ImmutableList<(string name, Func<TIn, bool> check)> _preconditions;
         private readonly ImmutableList<(string name, Func<TOut, bool> check)> _postconditions;
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public AsyncStepBuilder(
             Func<TIn, Task<TOut>> function,
