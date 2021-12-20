@@ -30,10 +30,29 @@ namespace PipelinesTest
                     .Build()
             };
 
-            await pipeline.Invoking(p => p.ExecutePipeline<string, string>(null))
+            await pipeline
+                .Invoking(p => p.ExecutePipeline<string, string>(null))
                 .Should()
                 .ThrowAsync<ArgumentException>()
                 .WithMessage("*Preconditions*not*NotNull*NotEmpty*");
+        }
+
+        [Fact]
+        public async Task ChecksAllPostconditions()
+        {
+            var pipeline = new[]
+            {
+                AStep.ThatExecutes<string, string>(Task.FromResult)
+                    .WithPostcondition("NotNull", str => str != null)
+                    .WithPostcondition("NotEmpty", str => !string.IsNullOrEmpty(str))
+                    .Build()
+            };
+
+            await pipeline
+                .Invoking(p => p.ExecutePipeline<string, string>(null))
+                .Should()
+                .ThrowAsync<ArgumentException>()
+                .WithMessage("*Postconditions*not*NotNull*NotEmpty*");
         }
     }
 }

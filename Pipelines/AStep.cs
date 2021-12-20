@@ -10,6 +10,7 @@ namespace Pipelines
             => new AsyncStepBuilder<TIn, TOut>(
                 function,
                 ImmutableList<(string name, Func<TIn, bool> check)>.Empty,
-                ImmutableList<(string name, Func<TOut, bool> check)>.Empty);
+                ImmutableList<(string name, Func<TOut, bool> check)>.Empty,
+                null);
     }
 }
