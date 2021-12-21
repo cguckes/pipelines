@@ -14,16 +14,15 @@ namespace PipelinesTest
         [Fact]
         public async Task WorksWithoutLogger()
         {
-            var pipeline = new[]
-            {
+            var pipeline = new Pipeline(
                 AStep
                     .ThatExecutes<string, string>(Task.FromResult)
                     .WithoutLogging()
-                    .Build(),
-            };
+                    .Build()
+            );
 
             await pipeline
-                .Invoking(p => p.ExecutePipeline<string, string>("test"))
+                .Invoking(p => p.Execute<string, string>("test"))
                 .Should()
                 .NotThrowAsync();
         }
@@ -33,18 +32,17 @@ namespace PipelinesTest
         {
             var logMock = MockLogger();
 
-            var pipeline = new[]
-            {
+            var pipeline = new Pipeline(
                 AStep
                     .ThatExecutes<string, string>(Task.FromResult)
                     .LoggingTo(logMock.Object)
                     .WithPostcondition("NotNull", str => str != null)
-                    .Build(),
-            };
+                    .Build()
+            );
 
             try
             {
-                await pipeline.ExecutePipeline<string, string>(null);
+                await pipeline.Execute<string, string>(null);
             }
             catch
             {

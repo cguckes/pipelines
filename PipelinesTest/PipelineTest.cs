@@ -10,13 +10,12 @@ namespace PipelinesTest
         [Fact]
         public async Task SimplePipelineWorks()
         {
-            var pipeline = new []
-            {
+            var pipeline = new Pipeline(
                 new TestStep.ReverseString(),
                 new TestStep.ReverseString()
-            };
+            );
 
-            var result = await pipeline.ExecutePipeline<string, string>("reverse-twice");
+            var result = await pipeline.Execute<string, string>("reverse-twice");
             result.Should().Be("reverse-twice");
         }
     }

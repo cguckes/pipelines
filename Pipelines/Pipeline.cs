@@ -1,20 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Pipelines
 {
-    public static class Pipeline
+    // TODO: cache input and output for steps, reflection is slow!
+
+    public class Pipeline
     {
-        public static async Task<TResult> ExecutePipeline<TInput, TResult>(
-            this IEnumerable<IStep> steps,
-            TInput input)
+        private readonly ImmutableArray<IStep> _steps;
+
+        public Pipeline() => _steps = ImmutableArray<IStep>.Empty;
+
+        public Pipeline(params IStep[] steps)
+            => _steps = ImmutableArray<IStep>.Empty.AddRange(steps);
+
+        public Pipeline(params IStepBuilder[] steps)
+            => _steps = ImmutableArray<IStep>.Empty.AddRange(steps.Select(step => step.Build()));
+
+        public Pipeline(IEnumerable<IStep> steps)
+            => _steps = ImmutableArray<IStep>.Empty.AddRange(steps);
+
+        public Pipeline(IEnumerable<IStepBuilder> steps)
+            => _steps = ImmutableArray<IStep>.Empty.AddRange(steps.Select(step => step.Build()));
+
+        public async Task<TResult> Execute<TInput, TResult>(TInput input)
         {
-            var stepArray = steps as IStep[] ?? steps.ToArray();
-            stepArray.ValidatePipeline<TInput, TResult>();
+            ValidatePipeline<TInput, TResult>();
             object result = input;
-            foreach (var step in stepArray)
+
+            foreach (var step in _steps)
             {
                 result = await step.Execute(result);
             }
@@ -22,20 +39,19 @@ namespace Pipelines
             return (TResult) result;
         }
 
-        public static void ValidatePipeline<TInput, TResult>(this IEnumerable<IStep> steps)
+        public void ValidatePipeline<TInput, TResult>()
         {
-            var stepArray = steps as IStep[] ?? steps.ToArray();
-            EnsureFirstStepCanProcessPipelineInput<TInput, TResult>(stepArray);
-            EnsureLastStepProducesPipelineOutput<TInput, TResult>(stepArray);
-            EnsureAllStepsCanProcessTheOutputOfThePredecessor(stepArray);
+            EnsureFirstStepCanProcessPipelineInput<TInput>();
+            EnsureLastStepProducesPipelineOutput<TResult>();
+            EnsureAllStepsCanProcessTheOutputOfThePredecessor();
         }
 
-        private static void EnsureAllStepsCanProcessTheOutputOfThePredecessor(IReadOnlyList<IStep> stepArray)
+        private void EnsureAllStepsCanProcessTheOutputOfThePredecessor()
         {
-            for (var i = 0; i < stepArray.Count - 1; i++)
+            for (var i = 0; i < _steps.Length - 1; i++)
             {
-                var currentStepOutput = stepArray[i].GetOutputType();
-                var nextStepInput = stepArray[i + 1].GetInputType();
+                var currentStepOutput = _steps[i].GetOutputType();
+                var nextStepInput = _steps[i + 1].GetInputType();
 
                 if (!nextStepInput.IsAssignableFrom(currentStepOutput))
                 {
@@ -46,9 +62,9 @@ namespace Pipelines
             }
         }
 
-        private static void EnsureLastStepProducesPipelineOutput<TInput, TResult>(IStep[] stepArray)
+        private void EnsureLastStepProducesPipelineOutput<TResult>()
         {
-            var lastStepOutputType = stepArray.Last().GetOutputType();
+            var lastStepOutputType = _steps.Last().GetOutputType();
             if (!typeof(TResult).IsAssignableFrom(lastStepOutputType))
             {
                 throw new ArgumentException(
@@ -57,9 +73,9 @@ namespace Pipelines
             }
         }
 
-        private static void EnsureFirstStepCanProcessPipelineInput<TInput, TResult>(IStep[] stepArray)
+        private void EnsureFirstStepCanProcessPipelineInput<TInput>()
         {
-            var firstStepInputType = stepArray.First().GetInputType();
+            var firstStepInputType = _steps.First().GetInputType();
             if (!firstStepInputType.IsAssignableFrom(typeof(TInput)))
             {
                 throw new ArgumentException(
@@ -68,29 +84,10 @@ namespace Pipelines
             }
         }
 
-        private static Type GetInputType(this IStep step)
-            => step.GetStepType().GenericTypeArguments.First();
+        public Pipeline Add(IStep step)
+            => new Pipeline(_steps.Add(step));
 
-        private static Type GetOutputType(this IStep step)
-            => step.GetStepType().GenericTypeArguments.Last();
-
-        private static Type GetStepType(this IStep step)
-            => step.GetType().GetBaseTypes().ToList().First(IsStep);
-
-        private static bool IsStep(Type type)
-            => type.Name.StartsWith("Step") &&
-               type.GetInterface(nameof(IStep)) != null &&
-               type.IsAbstract &&
-               type.GenericTypeArguments.Length == 2;
-
-        private static IEnumerable<Type> GetBaseTypes(this Type type)
-        {
-            for (var current = type; current != null; current = current.BaseType)
-            {
-                yield return current;
-            }
-        }
-        
-        // TODO: cache input and output for steps, reflection is slow!
+        public Pipeline AddRange(IEnumerable<IStep> step)
+            => new Pipeline(_steps.AddRange(step));
     }
 }
