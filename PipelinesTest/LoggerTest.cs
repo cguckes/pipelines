@@ -35,6 +35,7 @@ namespace PipelinesTest
             var pipeline = new Pipeline(
                 AStep
                     .ThatExecutes<string, string>(Task.FromResult)
+                    .Named("TestStep")
                     .LoggingTo(logMock.Object)
                     .WithPostcondition("NotNull", str => str != null)
                     .Build()
@@ -54,6 +55,15 @@ namespace PipelinesTest
             logMock.Verify(LogWithLevel(LogLevel.Trace), Times.AtLeastOnce);
         }
 
+        [Fact]
+        public async Task NullsWorkInTheLogger()
+        {
+            var pipeline = new Pipeline(
+                AStep.ThatExecutes<string, string>(Task.FromResult)
+                    .LoggingTo(MockLogger().Object));
+            await pipeline.Invoking(p => p.Execute<string, string>(null)).Should().NotThrowAsync();
+        }
+
         protected virtual Expression<Action<ILogger<LoggerTest>>> LogWithLevel(LogLevel logLevel)
             => mock => mock.Log(
                 It.Is<LogLevel>(level => level == logLevel),
@@ -63,9 +73,6 @@ namespace PipelinesTest
                 It.Is<Func<It.IsAnyType, Exception, string>>((v, t) => true));
 
         private static Mock<ILogger<LoggerTest>> MockLogger()
-        {
-            var log = new Mock<ILogger<LoggerTest>>();
-            return log;
-        }
+            => new Mock<ILogger<LoggerTest>>();
     }
 }

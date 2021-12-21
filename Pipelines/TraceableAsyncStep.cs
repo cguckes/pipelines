@@ -49,7 +49,7 @@ namespace Pipelines
             _logger?.LogTrace(JsonConvert.SerializeObject(output));
 
             Postcheck(output);
-            _logger?.LogDebug($"{_name}: Postconditions for {_outputIdentifier} met.");
+            _logger?.LogDebug($"{_name}: Postconditions for {_outputIdentifier(output)} met.");
             return output;
         }
 

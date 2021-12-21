@@ -6,7 +6,6 @@ namespace PipelinesTest
 {
     public static class TestStep
     {
-        
         internal class ReverseString : Step<string, string>
         {
             protected override Task<string> Process(string input)
