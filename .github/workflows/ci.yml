@@ -17,6 +17,8 @@ jobs:
         dotnet-version: 3.1.x
     - name: dotcover
       uses: dodopizza/dotcover-action@v1.2
+      with:
+        dotCoverCommand: cover
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
