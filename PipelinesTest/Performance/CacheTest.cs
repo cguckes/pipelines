@@ -4,14 +4,14 @@ using FluentAssertions;
 using Pipelines;
 using Xunit;
 
-namespace PipelinesTest
+namespace PipelinesTest.Performance
 {
-    public class PerformanceTest
+    [Trait("Category", "Performance")]
+    public class CacheTest
     {
         private const int ExpectedPerformanceImprovementFactor = 50;
 
         [Fact]
-        [Trait("Category", "Performance")]
         public void CachePerformanceTest()
         {
             var pipeline = new Pipeline(
@@ -31,7 +31,7 @@ namespace PipelinesTest
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            pipeline.ValidatePipeline<int, string>();
+            pipeline.Validate<int, string>();
             stopwatch.Stop();
 
             return stopwatch.ElapsedTicks;

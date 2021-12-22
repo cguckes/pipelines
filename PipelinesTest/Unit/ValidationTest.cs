@@ -5,8 +5,9 @@ using FluentAssertions;
 using Pipelines;
 using Xunit;
 
-namespace PipelinesTest
+namespace PipelinesTest.Unit
 {
+    [Trait("Category", "Unit")]
     public class ValidationTest
     {
         [Fact]
