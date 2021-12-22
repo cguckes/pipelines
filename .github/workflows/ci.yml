@@ -20,16 +20,16 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test and cover
-        run: dotnet test 
+        run: dotnet test ./PipelinesTest/PipelinesTest.csproj
           --no-build 
           --verbosity normal
           --filter Category=Unit
           /p:CollectCoverage=true 
-          /p:CoverletOutput=TestResults/ 
+          /p:CoverletOutput=./TestResults/ 
           /p:CoverletOutputFormat=lcov
       - run: find .
       - name: Publish coverage report
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: Pipelines/PipelinesTest/TestResults/coverage.info
+          path-to-lcov: ./TestResults/coverage.info
