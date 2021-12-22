@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,11 +7,17 @@ namespace Pipelines
 {
     internal static class PipelineExtensions
     {
+        private static readonly ConcurrentDictionary<Type, Type> InputTypeCache =
+            new ConcurrentDictionary<Type, Type>();
+
         internal static Type GetInputType(this IStep step)
-            => step.GetStepType().GenericTypeArguments.First();
+            => InputTypeCache.GetOrAdd(step.GetStepType(), t => t.GenericTypeArguments.First());
+
+        private static readonly ConcurrentDictionary<Type, Type> OutputTypeCache
+            = new ConcurrentDictionary<Type, Type>();
 
         internal static Type GetOutputType(this IStep step)
-            => step.GetStepType().GenericTypeArguments.Last();
+            => OutputTypeCache.GetOrAdd(step.GetStepType(), t => t.GenericTypeArguments.Last());
 
         private static Type GetStepType(this IStep step)
             => step.GetType().GetBaseTypes().ToList().First(IsStep);
@@ -27,6 +34,10 @@ namespace Pipelines
             {
                 yield return current;
             }
+        }
+
+        static PipelineExtensions()
+        {
         }
     }
 }

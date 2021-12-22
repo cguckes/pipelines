@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 namespace Pipelines
 {
-    // TODO: cache input and output for steps, reflection is slow!
-
     public class Pipeline
     {
         private readonly ImmutableArray<IStep> _steps;
@@ -62,17 +60,6 @@ namespace Pipelines
             }
         }
 
-        private void EnsureLastStepProducesPipelineOutput<TResult>()
-        {
-            var lastStepOutputType = _steps.Last().GetOutputType();
-            if (!typeof(TResult).IsAssignableFrom(lastStepOutputType))
-            {
-                throw new ArgumentException(
-                    $"The first pipeline step produces {lastStepOutputType.FullName} but you're expecting " +
-                    $"{typeof(TResult).FullName}");
-            }
-        }
-
         private void EnsureFirstStepCanProcessPipelineInput<TInput>()
         {
             var firstStepInputType = _steps.First().GetInputType();
@@ -81,6 +68,17 @@ namespace Pipelines
                 throw new ArgumentException(
                     $"The first pipeline step expects {firstStepInputType.FullName} but you're passing " +
                     $"{typeof(TInput).FullName}");
+            }
+        }
+
+        private void EnsureLastStepProducesPipelineOutput<TResult>()
+        {
+            var lastStepOutputType = _steps.Last().GetOutputType();
+            if (!typeof(TResult).IsAssignableFrom(lastStepOutputType))
+            {
+                throw new ArgumentException(
+                    $"The last pipeline step produces {lastStepOutputType.FullName} but you're expecting " +
+                    $"{typeof(TResult).FullName}");
             }
         }
 
