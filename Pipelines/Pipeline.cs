@@ -26,7 +26,7 @@ namespace Pipelines
 
         public async Task<TResult> Execute<TInput, TResult>(TInput input)
         {
-            ValidatePipeline<TInput, TResult>();
+            Validate<TInput, TResult>();
             object result = input;
 
             foreach (var step in _steps)
@@ -37,7 +37,7 @@ namespace Pipelines
             return (TResult) result;
         }
 
-        public void ValidatePipeline<TInput, TResult>()
+        public void Validate<TInput, TResult>()
         {
             EnsureFirstStepCanProcessPipelineInput<TInput>();
             EnsureLastStepProducesPipelineOutput<TResult>();

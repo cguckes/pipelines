@@ -7,8 +7,9 @@ using Moq;
 using Pipelines;
 using Xunit;
 
-namespace PipelinesTest
+namespace PipelinesTest.Unit
 {
+    [Trait("Category", "Unit")]
     public class LoggerTest
     {
         [Fact]
