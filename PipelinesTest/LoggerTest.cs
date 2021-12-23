@@ -28,11 +28,11 @@ namespace PipelinesTest
         }
 
         [Fact]
-        public async Task LogsDebuggingMessages()
+        public async Task LogsMessages()
         {
             var logMock = MockLogger();
 
-            var pipeline = new Pipeline(
+            var pipeline1 = new Pipeline(
                 AStep
                     .ThatExecutes<string, string>(Task.FromResult)
                     .Named("TestStep")
@@ -40,19 +40,36 @@ namespace PipelinesTest
                     .WithPostcondition("NotNull", str => str != null)
                     .Build()
             );
+            var pipeline2 = new Pipeline(
+                AStep
+                    .ThatExecutes<string, string>(Task.FromResult)
+                    .Named("TestStep")
+                    .LoggingTo(logMock.Object)
+                    .WithPrecondition("NotNull", str => str != null)
+                    .Build()
+            );
 
             try
             {
-                await pipeline.Execute<string, string>(null);
+                await pipeline1.Execute<string, string>(null);
+            }
+            catch
+            {
+                // ignored
+            }
+            
+            try
+            {
+                await pipeline2.Execute<string, string>(null);
             }
             catch
             {
                 // ignored
             }
 
-            logMock.Verify(LogWithLevel(LogLevel.Error), Times.AtLeastOnce);
-            logMock.Verify(LogWithLevel(LogLevel.Debug), Times.AtLeastOnce);
-            logMock.Verify(LogWithLevel(LogLevel.Trace), Times.AtLeastOnce);
+            logMock.Verify(LogWithLevel(LogLevel.Error), Times.AtLeast(2));
+            logMock.Verify(LogWithLevel(LogLevel.Debug), Times.AtLeast(4));
+            logMock.Verify(LogWithLevel(LogLevel.Trace), Times.AtLeast(4));
         }
 
         [Fact]
