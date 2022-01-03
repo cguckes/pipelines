@@ -69,7 +69,7 @@ namespace PipelinesTest.Unit
             }
 
             logMock.Verify(LogWithLevel(LogLevel.Error), Times.AtLeast(2));
-            logMock.Verify(LogWithLevel(LogLevel.Debug), Times.AtLeast(4));
+            logMock.Verify(LogWithLevel(LogLevel.Debug), Times.AtLeast(2));
             logMock.Verify(LogWithLevel(LogLevel.Trace), Times.AtLeast(4));
         }
 
