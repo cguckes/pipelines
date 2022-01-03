@@ -24,9 +24,12 @@ namespace Pipelines
         public Pipeline(IEnumerable<IStepBuilder> steps)
             => _steps = ImmutableArray<IStep>.Empty.AddRange(steps.Select(step => step.Build()));
 
-        public async Task<TResult> Execute<TInput, TResult>(TInput input)
+        public async Task<T> Execute<T>(T input) 
+            => await Execute<T, T>(input);
+
+        public async Task<TOutput> Execute<TInput, TOutput>(TInput input)
         {
-            Validate<TInput, TResult>();
+            Validate<TInput, TOutput>();
             object result = input;
 
             foreach (var step in _steps)
@@ -34,7 +37,7 @@ namespace Pipelines
                 result = await step.Execute(result);
             }
 
-            return (TResult) result;
+            return (TOutput) result;
         }
 
         public void Validate<TInput, TResult>()

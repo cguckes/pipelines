@@ -53,7 +53,10 @@ namespace Pipelines
                 _inputIdentifier,
                 _outputIdentifier);
 
-        public AsyncStepBuilder<TIn, TOut> WithPrecondition(string name, Func<TIn, bool> check)
+        public AsyncStepBuilder<TIn, TOut> AssumingThat(Func<TIn, bool> check)
+            => AssumingThat(check.Method.Name, check);
+
+        public AsyncStepBuilder<TIn, TOut> AssumingThat(string name, Func<TIn, bool> check)
             => new AsyncStepBuilder<TIn, TOut>(
                 _function,
                 _name,
@@ -62,6 +65,9 @@ namespace Pipelines
                 _logger,
                 _inputIdentifier,
                 _outputIdentifier);
+
+        public AsyncStepBuilder<TIn, TOut> AssumingAfter(Func<TOut, bool> check)
+            => WithPostcondition(check.Method.Name, check);
 
         public AsyncStepBuilder<TIn, TOut> WithPostcondition(string name, Func<TOut, bool> check)
             => new AsyncStepBuilder<TIn, TOut>(
@@ -72,6 +78,9 @@ namespace Pipelines
                 _logger,
                 _inputIdentifier,
                 _outputIdentifier);
+
+        IStepBuilder IStepBuilder.LoggingTo(ILogger logger) 
+            => LoggingTo(logger);
 
         public AsyncStepBuilder<TIn, TOut> LoggingTo(ILogger logger)
             => new AsyncStepBuilder<TIn, TOut>(

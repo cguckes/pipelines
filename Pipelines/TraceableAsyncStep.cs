@@ -36,7 +36,7 @@ namespace Pipelines
 
         protected override async Task<TOut> Process(TIn input)
         {
-            _logger?.LogDebug($"{_name}: Checking preconditions for {_inputIdentifier(input)}.");
+            _logger?.LogTrace($"{_name}: Checking preconditions for {_inputIdentifier(input)}.");
             _logger?.LogTrace($"{_name}: Input:");
             _logger?.LogTrace(JsonConvert.SerializeObject(input));
 

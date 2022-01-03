@@ -46,7 +46,7 @@ namespace PipelinesTest.Unit
                     .ThatExecutes<string, string>(Task.FromResult)
                     .Named("TestStep")
                     .LoggingTo(logMock.Object)
-                    .WithPrecondition("NotNull", str => str != null)
+                    .AssumingThat("NotNull", str => str != null)
                     .Build()
             );
 

@@ -24,8 +24,8 @@ namespace PipelinesTest.Unit
         {
             var pipeline = new Pipeline(
                 AStep.ThatExecutes<string, string>(Task.FromResult)
-                    .WithPrecondition("NotNull", str => str != null)
-                    .WithPrecondition("NotEmpty", str => !string.IsNullOrEmpty(str))
+                    .AssumingThat("NotNull", str => str != null)
+                    .AssumingThat("NotEmpty", str => !string.IsNullOrEmpty(str))
                     .Build()
             );
 
