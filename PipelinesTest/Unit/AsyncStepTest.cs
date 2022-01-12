@@ -20,6 +20,16 @@ namespace PipelinesTest.Unit
         }
 
         [Fact]
+        public async Task CanExecuteSynchronousFunctions()
+        {
+            var pipeline = new Pipeline(
+                AStep.ThatExecutes<string>(str => str.ToUpperInvariant()).Build()
+            );
+
+            (await pipeline.Execute("test")).Should().Be("TEST");
+        }
+
+        [Fact]
         public async Task ChecksAllPreconditions()
         {
             var pipeline = new Pipeline(

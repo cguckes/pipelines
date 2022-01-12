@@ -9,7 +9,7 @@ namespace PipelinesTest.Performance
     [Trait("Category", "Performance")]
     public class CacheTest
     {
-        private const int ExpectedPerformanceImprovementFactor = 50;
+        private const int ExpectedPerformanceImprovementFactor = 20;
 
         [Fact]
         public void CachePerformanceTest()

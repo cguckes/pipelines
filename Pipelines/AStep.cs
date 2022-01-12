@@ -9,6 +9,12 @@ namespace Pipelines
         public static AsyncStepBuilder<T, T> ThatExecutes<T>(Func<T, Task<T>> function)
             => ThatExecutes<T, T>(function);
 
+        public static AsyncStepBuilder<T, T> ThatExecutes<T>(Func<T, T> function)
+            => ThatExecutes<T, T>(function);
+        
+        public static AsyncStepBuilder<TIn, TOut> ThatExecutes<TIn, TOut>(Func<TIn, TOut> function)
+            => ThatExecutes<TIn, TOut>(input => Task.FromResult(function(input)));
+
         public static AsyncStepBuilder<TIn, TOut> ThatExecutes<TIn, TOut>(Func<TIn, Task<TOut>> function)
             => new AsyncStepBuilder<TIn, TOut>(
                 function,
