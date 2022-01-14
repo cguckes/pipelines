@@ -1,4 +1,4 @@
-name: publish version
+name: Publish Nuget package
 on:
   push:
     branches:
@@ -10,9 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup dotnet
-         uses: actions/setup-dotnet@v1
-         with:
-           dotnet-version: 3.1.200
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.200
 
       # Publish
       - name: publish on version change
