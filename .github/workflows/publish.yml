@@ -1,0 +1,26 @@
+name: publish version
+on:
+  push:
+    branches:
+      - main
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup dotnet
+         uses: actions/setup-dotnet@v1
+         with:
+           dotnet-version: 3.1.200
+
+      # Publish
+      - name: publish on version change
+        id: publish_nuget
+        uses: rohith/publish-nuget@v2
+        with:
+          PROJECT_FILE_PATH: Pipelines/Pipelines.csproj
+          VERSION_FILE_PATH: VERSION
+          VERSION_REGEX: ^\s(\d+\.\d+\.\d+)$
+          TAG_FORMAT: v*
+          NUGET_KEY: ${{secrets.NUGET_API_KEY}}
